@@ -13,12 +13,14 @@
 
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script type="text/javascript" src="../script/filter.js"></script>
+    <script type="text/javascript" src="../script/jquery.tablesorter.min.js"></script>
+
     <!--<script type="text/javascript" src="../script/loading.js"></script>-->
 
+    <!--map-->
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-
     <script src="map/ammap.js"></script>
 		<script src="map/maps/continentsLow.js"></script> <!--first map-->
 		<script src="map/maps/worldLow.js"></script> <!--zoom map-->
@@ -64,28 +66,29 @@
             <form>
               <input id ="input-tab" data-type="text" placeholder="Search" style="width:100%;">
             </form>
-            <div  class="tbl-header">
-              <table class="donneeHeader" cellpadding="0" cellspacing="0" border="0"> <!--tableheader-->
-                  <tr>
-                    <th>ID</th>
-                    <th>Category</th>
-                    <th>Old Volume</th>
-                    <th>New Volume</th>
-                    <th>Difference</th>
-                  </tr>
-              </table>
-            </div>
 
-            <div class="tbl-content">
-              <table id="donnee" cellpadding="0" cellspacing="0" border="0" data-filter="true" data-input="#input-tab"><!--table data-->
+              <div class="tbl-content">
+                <table id="donnee" cellpadding="0" cellspacing="0" border="0" data-filter="true" data-input="#input-tab"><!--table data-->
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Category</th>
+                      <th>Old Volume</th>
+                      <th>New Volume</th>
+                      <th>Difference</th>
+                    </tr>
+                  </thead>
 
-              </table>
-            </div>
+                  <tbody id="table1">
+                  </tbody>
 
-          </div>
-        </td>
-      </th>
-    </table>
+                </table>
+              </div>
+
+            </td>
+          </th>
+        </table>
+
   </br>
     <table>
       <th>
@@ -94,18 +97,18 @@
             <form>
               <input id ="input-tab2" data-type="text" placeholder="Search" style="width:100%;">
             </form>
-            <div  class="tbl-header2">
-              <table class="donneeHeader2" cellpadding="0" cellspacing="0" border="0"> <!--tableheader-->
+            <div class="tbl-content2">
+              <table id="donnee2" cellpadding="0" cellspacing="0" border="0" data-filter="true" data-input="#input-tab2"><!--table data-->
+                <thead>
                   <tr>
                     <th>ID</th>
                     <th>Country</th>
                     <th>Old Volume</th>
                   </tr>
-              </table>
-            </div>
+                </thead>
 
-            <div class="tbl-content2">
-              <table id="donnee2" onload="list2load()" cellpadding="0" cellspacing="0" border="0" data-filter="true" data-input="#input-tab2"><!--table data-->
+                <tbody id="table2">
+                </tbody>
 
               </table>
             </div>
@@ -119,18 +122,20 @@
             <form>
               <input id ="input-tab3" data-type="text" placeholder="Search" style="width:100%;">
             </form>
-            <div  class="tbl-header3">
-              <table class="donneeHeader3" cellpadding="0" cellspacing="0" border="0"> <!--tableheader-->
+
+            <div class="tbl-content3">
+              <table id="donnee3" cellpadding="0" cellspacing="0" border="0" data-filter="true" data-input="#input-tab3"><!--table data-->
+
+                <thead>
                   <tr>
                     <th>ID</th>
                     <th>Country</th>
                     <th>New Volume</th>
                   </tr>
-              </table>
-            </div>
+                </thead>
 
-            <div class="tbl-content3">
-              <table id="donnee3" cellpadding="0" cellspacing="0" border="0" data-filter="true" data-input="#input-tab3"><!--table data-->
+                <tbody id="table3">
+                </tbody>
 
               </table>
             </div>
@@ -195,9 +200,34 @@
           ListVolCat.push(mess[4][0]);
         }
 
+        //Timeout Async execution function
         function executeAsync(func)
         {
           setTimeout(func, 0);
+        }
+
+        //Sort filter for table1
+        var filterSort1 = function()
+        {
+          $('#donnee').tablesorter({
+               sortList: [[0, 0]]
+            });
+        }
+
+        //Sort filter for table2
+        var filterSort2 = function()
+        {
+          $('#donnee2').tablesorter({
+               sortList: [[0, 0]]
+            });
+        }
+
+        //Sort filter for table3
+        var filterSort3 = function()
+        {
+          $('#donnee3').tablesorter({
+               sortList: [[0, 0]]
+            });
         }
 
 
@@ -205,12 +235,15 @@
         var list1load = function()
         {
           //show element first table (id, cat, oldVolume, newVolume)
+          //for(var j =0; j < mess[0][0].length; j++)
           for(var j =0; j < mess[0][0].length; j++)
           {
             //inserting table content by incrementing all the element into the arraylist
-            var table = document.getElementById("donnee");
+            //var table = document.getElementById("donnee");
+            var table = document.getElementById("table1");
             var rowCount = table.rows.length;
             var row = table.insertRow(rowCount);
+
 
             row.insertCell(0).innerHTML = List[0][j][0];
             row.insertCell(1).innerHTML = List[0][j][1];
@@ -232,6 +265,7 @@
               Cells[4].remove();
               row.insertCell(4).innerHTML = "<font size='2px' color='red'>"+List[0][j][4]+"</font>";
             }
+
 
 
             //Push id, oldVolume and newVolume to the histogramme list
@@ -275,6 +309,9 @@
 
 
         list1load();
+        executeAsync(filterSort1); //execute filter after initialize the table1
+        executeAsync(filterSort2);
+        executeAsync(filterSort3);
         //executeAsync(list2load);
         //executeAsync(list3load);
 
@@ -291,19 +328,24 @@
 
         loadMap(ListMapCatVol);
 
-
-
-
-
         socket.setMaxListeners();//setMaxListeners to avoid memory leak (emit socket > 10)
 
       })
 
+
+
     //table scroll
-    /*
     $(window).on("load resize ", function() {
+
+      /*
       var scrollWidth = $('.tbl-content').width() - $('.tbl-content table').width();
+      $('.tbl-header').css({'padding-right':scrollWidth});*/
+
+
+      /*
+      var scrollWidth = $('.tbl-content').width();
       $('.tbl-header').css({'padding-right':scrollWidth});
+      */
 
       var scrollWidth2 = $('.tbl-content2').width() - $('.tbl-content2 table').width();
       $('.tbl-header2').css({'padding-right':scrollWidth2});
@@ -311,7 +353,8 @@
       var scrollWidth3 = $('.tbl-content3').width() - $('.tbl-content3 table').width();
       $('.tbl-header3').css({'padding-right':scrollWidth3});
 
-    }).resize();*/
+    }).resize();
+
 
     </script>
 

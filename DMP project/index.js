@@ -16,22 +16,23 @@ http.listen(80, function () {
     console.log('listening on *:80');
 })
 
-var url = "";
+var upload_path = "";
 //CSVtoJSON
 //socket server get message from a webpage and execute CSVtoJSON function
 io.on('connection', function (socket) {
     socket.on('sending_link', function (msg) {
-        url = msg["message"];
+        upload_path = msg["message"];
+        conversion.getobj(upload_path); //call csvjson.js file and execute the function CSVtoJSON
 
-        conversion.getobj(url); //call csvjson.js file and execute the function CSVtoJSON
         var message = 'done';
         //send the message 'done' to csvjson.js file
         socket.emit('sending_response',
         {
             response: message
         });
-
     });
+
+
 });
 
 

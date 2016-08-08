@@ -48,8 +48,6 @@ function JSONModelClassJoin(category_ID, methood, table, column, joinKey, weight
 
 //csv variables
 var readCSV = require('nodecsv').readCSV;
-var path = "CSV/app.csv";
-var path2 = "CSV/url.csv";
 var pathTest = "CSV/TestAll.csv";
 var ArrayList = require("arraylist");
 var appl = "";
@@ -73,8 +71,8 @@ var obj = "";
 
 //json file variables
 var jsonfile = require('jsonfile');
-var file = 'scoring_settings.json';
 var listJson = new ArrayList;
+var save_path = "views/extract/scoring_settings.json";
 
 //Add Function for APP, URL, JOINKey List
 function AddAPP(idd, appl, columnapp, weiapp, methodd, tableapp)
@@ -99,149 +97,153 @@ function AddJoin(idd, methodd_join, tableapp, columnapp, join_package_name, weia
 //Main code
 module.exports = //essential to exports the method
 {
-  getobj:function CSVtoJSON(path) //essential to catch the method
+  getobj:function CSVtoJSON(upload_path) //essential to catch the method
   {
-    readCSV(path, function(error, data)
-    {
-      ListContent = [];
-      Joinlist = [];
-      ListAPP = [];
-      ListURL = [];
-      for(var i = 0; i < data.length; i++)
-      {
-        idd = data[i][0];
-        weiapp = parseInt(data[i][3]);
 
-        var firstposition = 0; //string firstposition in order to add character
-        var endposition; //string length to be defined on each block
-
-
-        //ReadURL
-        if(data[i][2].substring(0,4) == "http")
+        readCSV(upload_path, function(error, data)
         {
-            //console.log("ok");
-            iddu = data[i][0];
-            weiurl = parseInt(data[i][3]);
+          ListContent = [];
+          Joinlist = [];
+          ListAPP = [];
+          ListURL = [];
+          for(var i = 0; i < data.length; i++)
+          {
+            idd = data[i][0];
+            weiapp = parseInt(data[i][3]);
 
-            urrl = data[i][2].slice(0, data[i][2].lastIndexOf('.'));
-            if(urrl.split('.').pop() == "co" || urrl.split('.').pop() == "org" || urrl.split('.').pop() == "go" || urrl.split('.').pop() == "mx" || urrl.split('.').pop() == "com" || urrl.split('.').pop() == "gob" || urrl.split('.').pop() == "att" || urrl.split('.').pop() == "mob" || urrl.split('.').pop() == "rcs" || urrl.split('.').pop() == "gov")
+            var firstposition = 0; //string firstposition in order to add character
+            var endposition; //string length to be defined on each block
+
+
+            //ReadURL
+            if(data[i][2].substring(0,4) == "http")
             {
-              urrl = urrl.slice(0, urrl.lastIndexOf('.'));
-              urrl = urrl.split('.').pop();
-              if(urrl == "espn" || urrl == "about")
-              {
-                urrl = urrl.slice(0, urrl.lastIndexOf('.'));
-                urrl = urrl.split('.').pop();
+                //console.log("ok");
+                iddu = data[i][0];
+                weiurl = parseInt(data[i][3]);
 
-                AddURL(iddu, urrl, columnurl, weiurl, methodd, tableurl);
-              }
-              //Add characters
-              endposition = urrl.length;
-              urrl = [urrl.slice(0, endposition), "[^\\w].*$", urrl.slice(endposition)].join(''); // add string at the end
-              urrl = [urrl.slice(0, firstposition), "^.*[^\\w]", urrl.slice(firstposition)].join(''); //add string at the begining
+                urrl = data[i][2].slice(0, data[i][2].lastIndexOf('.'));
+                if(urrl.split('.').pop() == "co" || urrl.split('.').pop() == "org" || urrl.split('.').pop() == "go" || urrl.split('.').pop() == "mx" || urrl.split('.').pop() == "com" || urrl.split('.').pop() == "gob" || urrl.split('.').pop() == "att" || urrl.split('.').pop() == "mob" || urrl.split('.').pop() == "rcs" || urrl.split('.').pop() == "gov")
+                {
+                  urrl = urrl.slice(0, urrl.lastIndexOf('.'));
+                  urrl = urrl.split('.').pop();
+                  if(urrl == "espn" || urrl == "about")
+                  {
+                    urrl = urrl.slice(0, urrl.lastIndexOf('.'));
+                    urrl = urrl.split('.').pop();
 
-              AddURL(iddu, urrl, columnurl, weiurl, methodd, tableurl);
+                    AddURL(iddu, urrl, columnurl, weiurl, methodd, tableurl);
+                  }
+                  //Add characters
+                  endposition = urrl.length;
+                  urrl = [urrl.slice(0, endposition), "[^\\w].*$", urrl.slice(endposition)].join(''); // add string at the end
+                  urrl = [urrl.slice(0, firstposition), "^.*[^\\w]", urrl.slice(firstposition)].join(''); //add string at the begining
+
+                  AddURL(iddu, urrl, columnurl, weiurl, methodd, tableurl);
+                }
+                else
+                {
+                  urrl = urrl.split('.').pop();
+
+                  //Add characters
+                  endposition = urrl.length;
+                  urrl = [urrl.slice(0, endposition), "[^\\w].*$", urrl.slice(endposition)].join(''); // add string at the end
+                  urrl = [urrl.slice(0, firstposition), "^.*[^\\w]", urrl.slice(firstposition)].join(''); //add string at the begining
+
+                  AddURL(iddu, urrl, columnurl, weiurl, methodd, tableurl);
+                }
+
             }
-            else
+            else //Read APP
             {
-              urrl = urrl.split('.').pop();
-
-              //Add characters
-              endposition = urrl.length;
-              urrl = [urrl.slice(0, endposition), "[^\\w].*$", urrl.slice(endposition)].join(''); // add string at the end
-              urrl = [urrl.slice(0, firstposition), "^.*[^\\w]", urrl.slice(firstposition)].join(''); //add string at the begining
-
-              AddURL(iddu, urrl, columnurl, weiurl, methodd, tableurl);
+              join_package_name = data[i][2];
+              AddJoin(idd, methodd_join, tableapp, columnapp, join_package_name, weiapp);
             }
 
-        }
-        else //Read APP
-        {
-          join_package_name = data[i][2];
-          AddJoin(idd, methodd_join, tableapp, columnapp, join_package_name, weiapp);
-        }
+          }
 
-      }
+          //Add ListUrl to ListContent
+          for(var y = 0; y < ListURL.length; y++)
+          {
+            //ListContent.pop();
+            ListContent.push([ListURL[y][0], ListURL[y][1], ListURL[y][2], ListURL[y][3], ListURL[y][4], ListURL[y][5]]); //[id][url][column][weight]
+          }
 
-      //Add ListUrl to ListContent
-      for(var y = 0; y < ListURL.length; y++)
-      {
-        //ListContent.pop();
-        ListContent.push([ListURL[y][0], ListURL[y][1], ListURL[y][2], ListURL[y][3], ListURL[y][4], ListURL[y][5]]); //[id][url][column][weight]
-      }
+          //Sort ListContent by id and app/url
+          ListContent.sort();
+          Joinlist.sort();
 
-      //Sort ListContent by id and app/url
-      ListContent.sort();
-      Joinlist.sort();
+          //JSON writting
+          listJson = [];
+          for(var l = 0; l < ListContent.length; l++)
+          {
+            var category_ID = ListContent[l][0];
+            var methdd = ListContent[l][4];
+            var table = ListContent[l][5];
+            var column = ListContent[l][2];
+            var pattern = ListContent[l][1];
+            var wei = ListContent[l][3];
 
-      //JSON writting
-      listJson = [];
-      for(var l = 0; l < ListContent.length; l++)
-      {
-        var category_ID = ListContent[l][0];
-        var methdd = ListContent[l][4];
-        var table = ListContent[l][5];
-        var column = ListContent[l][2];
-        var pattern = ListContent[l][1];
-        var wei = ListContent[l][3];
+            var json = new JSONModelClass(category_ID, methdd, table, column, pattern, wei);
 
-        var json = new JSONModelClass(category_ID, methdd, table, column, pattern, wei);
-
-        var model =
-        {
-          "category_ID": json.category_ID,
-          "method": json.methood,
-          "table": json.table,
-          "column": json.column,
-          "pattern": json.pattern,
-          "weight": json.weight
-        }
-        //add model to list
-        listJson.push(model);
+            var model =
+            {
+              "category_ID": json.category_ID,
+              "method": json.methood,
+              "table": json.table,
+              "column": json.column,
+              "pattern": json.pattern,
+              "weight": json.weight
+            }
+            //add model to list
+            listJson.push(model);
 
 
-      }
+          }
 
-      //joinlist add json
-      for(var x = 0; x < Joinlist.length; x++)
-      {
-        var category_ID = Joinlist[x][0];
-        var methdd = Joinlist[x][1];
-        var table = Joinlist[x][2];
-        var column = Joinlist[x][3];
-        var joinkeyy = Joinlist[x][4];
-        var wei = Joinlist[x][5];
+          //joinlist add json
+          for(var x = 0; x < Joinlist.length; x++)
+          {
+            var category_ID = Joinlist[x][0];
+            var methdd = Joinlist[x][1];
+            var table = Joinlist[x][2];
+            var column = Joinlist[x][3];
+            var joinkeyy = Joinlist[x][4];
+            var wei = Joinlist[x][5];
 
-        var json = new JSONModelClassJoin(category_ID, methdd, table, column, joinkeyy, wei);
+            var json = new JSONModelClassJoin(category_ID, methdd, table, column, joinkeyy, wei);
 
-        var model2 =
-        {
-          "category_ID": json.category_ID,
-          "method": json.methood,
-          "table": json.table,
-          "column": json.column,
-          "joinKey": json.joinKey,
-          "weight": json.weight
-        }
-        //add model to list
-        listJson.push(model2);
-      }
+            var model2 =
+            {
+              "category_ID": json.category_ID,
+              "method": json.methood,
+              "table": json.table,
+              "column": json.column,
+              "joinKey": json.joinKey,
+              "weight": json.weight
+            }
+            //add model to list
+            listJson.push(model2);
+          }
 
-      //json model containing all data refering to model
-      obj =
-      {
-        "contributions" : listJson
-      }
+          //json model containing all data refering to model
+          obj =
+          {
+            "contributions" : listJson
+          }
 
 
-      console.log(listJson.length);
+          console.log(listJson.length);
 
-      //writeFile
-      jsonfile.writeFile(file, obj, {spaces : 2}, function (err)
-      {
-        console.error("done ;)")
-      })
+          //writeFile
+          jsonfile.writeFile(save_path, obj, {spaces : 2}, function (err)
+          {
+            console.error("done ;)");
+          })
 
-    });
+        });
+
+
+
   }
 }
